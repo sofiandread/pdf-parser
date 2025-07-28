@@ -1,6 +1,7 @@
+from fastapi import FastAPI, UploadFile, File
+import fitz  # PyMuPDF
 import os
 import uvicorn
-from fastapi import FastAPI
 
 app = FastAPI()
 

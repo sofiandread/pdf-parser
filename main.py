@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile
-import pdfplumber
+from fastapi.responses import JSONResponse
+import fitz  # PyMuPDF
 
 app = FastAPI()
 
@@ -7,8 +8,10 @@ app = FastAPI()
 async def extract_text(file: UploadFile = File(...)):
     try:
         contents = await file.read()
-        with pdfplumber.open(file.file) as pdf:
-            text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+        doc = fitz.open(stream=contents, filetype="pdf")
+        text = ""
+        for page in doc:
+            text += page.get_text()
         return {"text": text}
     except Exception as e:
-        return {"error": str(e)}
+        return JSONResponse(status_code=500, content={"error": str(e)})
